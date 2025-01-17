@@ -2,4 +2,8 @@
 --  I promise not to create any merge conflicts in this directory :)
 --
 -- See the kickstart.nvim README for more information
-return {}
+return {
+  -- Legacy vim plugins from my old setup
+  'tpope/vim-rails',
+  'vim-test/vim-test',
+}
