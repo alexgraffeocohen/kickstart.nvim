@@ -87,11 +87,11 @@ P.S. You can delete this when you're done too. It's your config now! :)
 -- Set <space> as the leader key
 -- See `:help mapleader`
 --  NOTE: Must happen before plugins are loaded (otherwise wrong leader will be used)
-vim.g.mapleader = ' '
-vim.g.maplocalleader = ' '
+vim.g.mapleader = ','
+vim.g.maplocalleader = ','
 
 -- Set to true if you have a Nerd Font installed and selected in the terminal
-vim.g.have_nerd_font = false
+vim.g.have_nerd_font = true
 
 -- [[ Setting options ]]
 -- See `:help vim.opt`
@@ -99,10 +99,10 @@ vim.g.have_nerd_font = false
 --  For more options, you can see `:help option-list`
 
 -- Make line numbers default
-vim.opt.number = true
+-- vim.opt.number = true
 -- You can also add relative line numbers, to help with jumping.
 --  Experiment for yourself to see if you like it!
--- vim.opt.relativenumber = true
+vim.opt.relativenumber = true
 
 -- Enable mouse mode, can be useful for resizing splits for example!
 vim.opt.mouse = 'a'
@@ -156,6 +156,19 @@ vim.opt.cursorline = true
 -- Minimal number of screen lines to keep above and below the cursor.
 vim.opt.scrolloff = 10
 
+-- [[ Custom Commands ]]
+vim.api.nvim_create_user_command('Einit', function()
+  vim.cmd 'edit ~/.config/nvim/init.lua'
+end, {})
+
+vim.api.nvim_create_user_command('Rinit', function()
+  vim.cmd 'source ~/.config/nvim/init.lua'
+end, {})
+
+vim.cmd [[
+  cmap %% <C-R>=expand('%:p')<CR>
+]]
+
 -- [[ Basic Keymaps ]]
 --  See `:help vim.keymap.set()`
 
@@ -173,6 +186,7 @@ vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagn
 -- NOTE: This won't work in all terminal emulators/tmux/etc. Try your own mapping
 -- or just use <C-\><C-n> to exit terminal mode
 vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
+vim.keymap.set('t', '<C-\\>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
 
 -- TIP: Disable arrow keys in normal mode
 -- vim.keymap.set('n', '<left>', '<cmd>echo "Use h to move!!"<CR>')
@@ -188,6 +202,79 @@ vim.keymap.set('n', '<C-h>', '<C-w><C-h>', { desc = 'Move focus to the left wind
 vim.keymap.set('n', '<C-l>', '<C-w><C-l>', { desc = 'Move focus to the right window' })
 vim.keymap.set('n', '<C-j>', '<C-w><C-j>', { desc = 'Move focus to the lower window' })
 vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
+
+-- Running tests
+vim.keymap.set(
+  'n', -- normal mode
+  '<leader>t', -- keys
+  ':TestFile<CR>', -- command
+  { noremap = true, silent = true } -- options
+)
+vim.keymap.set(
+  'n', -- normal mode
+  '<leader>s', -- keys
+  ':TestNearest<CR>', -- command
+  { noremap = true, silent = true } -- options
+)
+vim.keymap.set(
+  'n', -- normal mode
+  '<leader>l', -- keys
+  ':TestLast<CR>', -- command
+  { noremap = true, silent = true } -- options
+)
+
+-- Config
+vim.keymap.set(
+  'n', -- normal mode
+  '<leader>c', -- keys
+  ':EInit<CR>', -- command
+  { noremap = true, silent = true, desc = 'Edit init.lua' } -- options
+)
+vim.keymap.set(
+  'n', -- normal mode
+  '<leader>r', -- keys
+  ':RInit<CR>', -- command
+  { noremap = true, silent = true, desc = 'Reload init.lua' } -- options
+)
+
+-- Function to rename current file
+vim.api.nvim_create_user_command('RenameFile', function()
+  -- Get the current file name
+  local old_name = vim.fn.expand '%'
+  -- Prompt for the new file name
+  local new_name = vim.fn.input('New file name: ', old_name)
+
+  -- Check if the new name is valid and different from the old name
+  if new_name ~= '' and new_name ~= old_name then
+    -- Save the current buffer to the new file
+    vim.cmd('saveas ' .. new_name)
+    -- Silently delete the old file
+    os.remove(old_name)
+    -- Refresh the screen to reflect changes
+    vim.cmd 'redraw!'
+  end
+end, {})
+vim.keymap.set('n', '<leader>mv', ':RenameFile<CR>')
+
+-- Function to copy the current file name to the clipboard
+vim.api.nvim_create_user_command('YankFilename', function()
+  -- Get the full path of the current file
+  local filename = vim.fn.expand '%:p'
+
+  if filename == '' then
+    print 'No file name to copy!'
+    return
+  end
+
+  -- Copy the file name to the clipboard using Neovim's register system
+  vim.fn.setreg('+', filename) -- The '+' register represents the system clipboard
+
+  -- Inform the user
+  print('File name copied to clipboard: ' .. filename)
+end, {})
+
+-- Map <leader>f to call copy_filename_to_clipboard function
+vim.keymap.set('n', '<leader>f', 'YankFilename<CR>')
 
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
@@ -630,6 +717,7 @@ require('lazy').setup({
         -- But for many setups, the LSP (`ts_ls`) will work just fine
         -- ts_ls = {},
         --
+        --
 
         lua_ls = {
           -- cmd = { ... },
@@ -645,6 +733,9 @@ require('lazy').setup({
             },
           },
         },
+        ruby_lsp = {},
+        rubocop = {},
+        sorbet = {},
       }
 
       -- Ensure the servers and tools above are installed
@@ -715,6 +806,7 @@ require('lazy').setup({
       end,
       formatters_by_ft = {
         lua = { 'stylua' },
+        ruby = { 'rubocop', 'sorbet', 'standard' },
         -- Conform can also run multiple formatters sequentially
         -- python = { "isort", "black" },
         --
@@ -795,9 +887,9 @@ require('lazy').setup({
 
           -- If you prefer more traditional completion keymaps,
           -- you can uncomment the following lines
-          --['<CR>'] = cmp.mapping.confirm { select = true },
-          --['<Tab>'] = cmp.mapping.select_next_item(),
-          --['<S-Tab>'] = cmp.mapping.select_prev_item(),
+          ['<CR>'] = cmp.mapping.confirm { select = true },
+          ['<Tab>'] = cmp.mapping.select_next_item(),
+          ['<S-Tab>'] = cmp.mapping.select_prev_item(),
 
           -- Manually trigger a completion from nvim-cmp.
           --  Generally you don't need this, because nvim-cmp will display
@@ -839,19 +931,22 @@ require('lazy').setup({
       }
     end,
   },
-
+  -- Other Colorschemes
+  {
+    'ishan9299/nvim-solarized-lua',
+  },
   { -- You can easily change to a different colorscheme.
     -- Change the name of the colorscheme plugin below, and then
     -- change the command in the config to whatever the name of that colorscheme is.
     --
     -- If you want to see what colorschemes are already installed, you can use `:Telescope colorscheme`.
-    'folke/tokyonight.nvim',
+    'samharju/synthweave.nvim',
     priority = 1000, -- Make sure to load this before all the other start plugins.
     init = function()
       -- Load the colorscheme here.
       -- Like many other themes, this one has different styles, and you could load
       -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
-      vim.cmd.colorscheme 'tokyonight-night'
+      vim.cmd.colorscheme 'synthweave'
 
       -- You can configure highlights by doing something like:
       vim.cmd.hi 'Comment gui=none'
@@ -944,7 +1039,7 @@ require('lazy').setup({
   --    This is the easiest way to modularize your config.
   --
   --  Uncomment the following line and add your plugins to `lua/custom/plugins/*.lua` to get going.
-  -- { import = 'custom.plugins' },
+  { import = 'custom.plugins' },
   --
   -- For additional information with loading, sourcing and examples see `:help lazy.nvim-🔌-plugin-spec`
   -- Or use telescope!
