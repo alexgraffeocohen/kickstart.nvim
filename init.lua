@@ -430,10 +430,15 @@ require('lazy').setup({
         preview = { default = 'bat' },
       } }
 
-      -- kickstart keymaps, can try to port as neededf
+      vim.keymap.set('n', '<leader>sf', function()
+        require('fzf-lua').files()
+      end, { desc = '[S]earch [F]iles' })
+      -- Alias for old vim-fzf command
+      vim.keymap.set('n', ':FZF<enter>', '<leader>sf')
+
+      -- kickstart keymaps, can try to port as needed
       -- vim.keymap.set('n', '<leader>sh', builtin.help_tags, { desc = '[S]earch [H]elp' })
       -- vim.keymap.set('n', '<leader>sk', builtin.keymaps, { desc = '[S]earch [K]eymaps' })
-      -- vim.keymap.set('n', '<leader>sf', builtin.find_files, { desc = '[S]earch [F]iles' })
       -- vim.keymap.set('n', '<leader>ss', builtin.builtin, { desc = '[S]earch [S]elect Telescope' })
       -- vim.keymap.set('n', '<leader>sw', builtin.grep_string, { desc = '[S]earch current [W]ord' })
       -- vim.keymap.set('n', '<leader>sg', builtin.live_grep, { desc = '[S]earch by [G]rep' })
@@ -443,9 +448,14 @@ require('lazy').setup({
       -- vim.keymap.set('n', '<leader><leader>', builtin.buffers, { desc = '[ ] Find existing buffers' })
 
       -- Shortcut for searching your Neovim configuration files
-      -- vim.keymap.set('n', '<leader>sn', function()
-      --   builtin.find_files { cwd = vim.fn.stdpath 'config' }
-      -- end, { desc = '[S]earch [N]eovim files' })
+      vim.keymap.set('n', '<leader>sn', function()
+        require('fzf-lua').files { cwd = '~/.config' }
+      end, { desc = '[S]earch [N]eovim files' })
+
+      -- Shortcut for searching dotfiles
+      vim.keymap.set('n', '<leader>sd', function()
+        require('fzf-lua').files { cwd = '~/.config' }
+      end, { desc = '[S]earch [D]otfiles' })
     end,
   },
 
