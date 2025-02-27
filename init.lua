@@ -682,7 +682,6 @@ require('lazy').setup({
           },
         },
         ruby_lsp = {},
-        rubocop = {},
         sorbet = {},
       }
 
