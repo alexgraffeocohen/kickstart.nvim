@@ -430,11 +430,21 @@ require('lazy').setup({
         preview = { default = 'bat' },
       } }
 
+      -- Search Files
       vim.keymap.set('n', '<leader>sf', function()
         require('fzf-lua').files()
       end, { desc = '[S]earch [F]iles' })
-      -- Alias for old vim-fzf command
       vim.keymap.set('n', ':FZF<enter>', '<leader>sf')
+
+      -- Search recent files
+      vim.keymap.set('n', '<leader>s.', function()
+        require('fzf-lua').oldfiles()
+      end, { desc = '[S]earch Recent Files ("." for repeat)' })
+
+      -- Live grep
+      vim.keymap.set('n', '<leader>sg', function()
+        require('fzf-lua').live_grep()
+      end, { desc = '[S]earch by [Grep]' })
 
       -- kickstart keymaps, can try to port as needed
       -- vim.keymap.set('n', '<leader>sh', builtin.help_tags, { desc = '[S]earch [H]elp' })
@@ -454,8 +464,13 @@ require('lazy').setup({
 
       -- Shortcut for searching dotfiles
       vim.keymap.set('n', '<leader>sd', function()
-        require('fzf-lua').files { cwd = '~/.config' }
+        require('fzf-lua').files { cwd = '~' }
       end, { desc = '[S]earch [D]otfiles' })
+
+      -- Shortcut for searching notes
+      vim.keymap.set('n', '<leader>sn', function()
+        require('fzf-lua').files { cwd = '~/notes' }
+      end, { desc = '[S]earch [N]otes' })
     end,
   },
 
