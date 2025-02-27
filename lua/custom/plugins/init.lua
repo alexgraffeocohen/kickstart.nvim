@@ -7,7 +7,6 @@ return {
   'tpope/vim-rails',
   'tpope/vim-surround',
   'vim-test/vim-test',
-  -- More nvim plugins
   'ecomba/vim-ruby-refactoring',
   -- :nnoremap <leader>rap  :RAddParameter<cr>
   -- :nnoremap <leader>rcpc :RConvertPostConditional<cr>
@@ -18,6 +17,7 @@ return {
   -- :vnoremap <leader>rrlv :RRenameLocalVariable<cr>
   -- :vnoremap <leader>rriv :RRenameInstanceVariable<cr>
   -- :vnoremap <leader>rem  :RExtractMethod<cr>
+  -- Custom nvim plugins
   {
     'otavioschwanck/ruby-toolkit.nvim',
     dependencies = { 'nvim-treesitter/nvim-treesitter', 'nvim-treesitter/nvim-treesitter-textobjects' },
@@ -27,5 +27,14 @@ return {
       { '<leader>rem', "<cmd>lua require('ruby-toolkit').extract_to_function()<CR>", desc = 'Extract To Method', mode = { 'v' } },
       { '<leader>remc', "<cmd>lua require('ruby-toolkit').create_function_from_text()<CR>", desc = 'Create Method from item on cursor' },
     },
+  },
+  {
+    'NeogitOrg/neogit',
+    dependencies = {
+      'nvim-lua/plenary.nvim',
+      'sindrets/diffview.nvim',
+      'ibhagwan/fzf-lua',
+    },
+    config = true,
   },
 }
